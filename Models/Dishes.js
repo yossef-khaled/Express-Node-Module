@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const schema = mongoose.Schema;
 
+require('mongoose-currency').loadType(mongoose);
+const Currency = mongoose.Types.Currency;
+
 const commentSchema = new schema({
     rating: {
         type: Number,
@@ -20,7 +23,7 @@ const commentSchema = new schema({
     timestamps: true
 });
 
-const disheSchema = new schema({
+const dishSchema = new schema({
     name: {
         type: String,
         required: true,
