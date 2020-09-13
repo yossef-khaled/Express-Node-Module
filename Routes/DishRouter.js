@@ -25,7 +25,7 @@ dishRouter.route('/')
         console.log(`Dish created ${dish}`);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(dishes); 
+        res.json(dish); 
     },  (error) => next(error))
     .catch((error) => next(error));
 })
@@ -47,17 +47,41 @@ dishRouter.route('/')
 //CRUD for the endpoint /dishes/:dishID
 dishRouter.route('/:dishID') 
 .get((req, res, next) => {
-    res.end(`Will send back details of dishe number : ${req.params.dishID}`);
+    Dishes.findById(req.params.dishID)
+    .then((dish) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish); 
+    }, (error) => next(error))
+    .catch((error) => next(error));
 })
 .post((req, res, next) => {
     res.statusCode = 403;
     res.end(`POST operation is not supported in this end point '/dishes/:${req.params.dishID}'`);
 })
 .put((req, res, next) => {
-    res.end(`Will update the dish number: ${req.params.dishID}`);
+    Dishes.findByIdAndUpdate(req.params.dishID, 
+    {
+        $set: req.body
+    },
+    {
+        new: true
+    })
+    .then((dish) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish); 
+    }, (error) => next(error))
+    .catch((error) => next(error));
 })
 .delete((req, res, next) => {
-    res.end(`Deleting dish number: ${req.params.dishID}`);
+    Dishes.findByIdAndDelete(req.params.dishID)
+    .then((dish) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(dish); 
+    }, (error) => next(error))
+    .catch((error) => next(error));
 });
 
 module.exports = dishRouter;
