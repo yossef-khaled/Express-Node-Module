@@ -5,10 +5,21 @@ const bodyParser = require('body-parser');
 
 const dishRouter = require('./Routes/DishRouter');
 
+const mongoose = require('mongoose');
+
+const Dishes = require('./Models/Dishes');
+
+const url = 'mongodb://localhost:27017/conFusion';
+const connect = mongoose.connect(url);
+
+connect.then((db) => {
+    console.log('Connected to the server proberlly');
+}, (error) => {console.log(`ERROR connecting to the server : ${error}`); });
+
 const hostName = 'Localhost';
 const port = 3000;
 
-const app = express();
+var app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
