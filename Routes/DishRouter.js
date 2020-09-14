@@ -49,9 +49,16 @@ dishRouter.route('/:dishID')
 .get((req, res, next) => {
     Dishes.findById(req.params.dishID)
     .then((dish) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(dish); 
+        if(dish != null) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(dish);
+        } 
+        else {
+            error = new Error(`Dish ${req.params.dishID} not found`);
+            error.status = 404;
+            return error;
+        }
     }, (error) => next(error))
     .catch((error) => next(error));
 })
@@ -60,26 +67,46 @@ dishRouter.route('/:dishID')
     res.end(`POST operation is not supported in this end point '/dishes/:${req.params.dishID}'`);
 })
 .put((req, res, next) => {
-    Dishes.findByIdAndUpdate(req.params.dishID, 
-    {
-        $set: req.body
-    },
-    {
-        new: true
-    })
+    Dishes.findById(req.params.dishID)
     .then((dish) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(dish); 
+        if(dish != null) {
+            Dishes.findByIdAndUpdate(req.params.dishID, 
+            {
+                $set: req.body
+            },
+            {
+                new: true
+            })
+            .then((dish) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(dish); 
+            })
+        }
+        else {
+            error = new Error(`Dish ${req.params.dishID} not found`);
+            error.status = 404;
+            return error;
+        }
     }, (error) => next(error))
     .catch((error) => next(error));
 })
 .delete((req, res, next) => {
-    Dishes.findByIdAndDelete(req.params.dishID)
+    Dishes.findById(req.params.dishID)
     .then((dish) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(dish); 
+        if(dish != null) {
+            Dishes.findByIdAndDelete(req.params.dishID)
+            .then(() => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(dish); 
+            })
+        }
+        else {
+            error = new Error(`Dish ${req.params.dishID} not found`);
+            error.status = 404;
+            return error;
+        }
     }, (error) => next(error))
     .catch((error) => next(error));
 });
