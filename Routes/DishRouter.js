@@ -111,4 +111,69 @@ dishRouter.route('/:dishID')
     .catch((error) => next(error));
 });
 
+//CRUD for the endpoint /dishes/:dishID/comments
+dishRouter.route('/:dishID/comments') 
+.get((req, res, next) => {
+    Dishes.findById(req.params.dishID)
+    .then((dish) => {
+        if(dish != null) {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(dish.comments);
+        } 
+        else {
+            error = new Error(`Dish ${req.params.dishID} not found`);
+            error.status = 404;
+            return error;
+        }
+    }, (error) => next(error))
+    .catch((error) => next(error));
+})
+.post((req, res, next) => {
+    Dishes.findById(req.params.dishID)
+    .then((dish) => {
+        if(dish != null) {
+            dish.comments.push(req.body);
+            dish.save()
+            .then((dish) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(dish);
+            }, (error) => next(error));
+        } 
+        else {
+            error = new Error(`Dish ${req.params.dishID} not found`);
+            error.status = 404;
+            return error;
+        }
+    }, (error) => next(error))
+    .catch((error) => next(error));
+})
+.put((req, res, next) => {
+    res.statusCode = 403;
+    res.end(`PUT operation is forbidden for the path /dishes/:${req.params.dishID}/comments`);
+})
+.delete((req, res, next) => {
+    Dishes.findById(req.params.dishID)
+    .then((dish) => {
+        if(dish != null) {
+            for(var i = 0; i < dish.comments.length; i ++) {
+                dish.comments[i].remove();
+            }
+            dish.save()
+            .then((dish) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(dish);     
+            }, (err) => next(err));
+        }
+        else {
+            error = new Error(`Dish ${req.params.dishID} not found`);
+            error.status = 404;
+            return error;
+        }
+    }, (error) => next(error))
+    .catch((error) => next(error));
+});
+
 module.exports = dishRouter;
