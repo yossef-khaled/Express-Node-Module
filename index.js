@@ -25,12 +25,17 @@ const port = 3000;
 var app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false}));
+app.use(cookieParser());
+
+
+
+app.use(express.static(path.join(__dirname + '/Public')));
 
 //Connect the index.js file with the routes from our 'dish-router'
 app.use('/dishes', dishRouter);
 app.use('/dishes/:dishID', dishRouter);
 
-app.use(express.static(path.join(__dirname + '/Public')));
 
 app.use((req, res, next) => {
     console.log(req.method);
