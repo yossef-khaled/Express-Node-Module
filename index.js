@@ -1,7 +1,10 @@
 const express = require('express');
-const http = require('http');
+//const http = require('http');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const createError = require('http-errors');
+const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const dishRouter = require('./Routes/DishRouter');
 
@@ -27,7 +30,7 @@ app.use(bodyParser.json());
 app.use('/dishes', dishRouter);
 app.use('/dishes/:dishID', dishRouter);
 
-app.use(express.static(__dirname + '/Public'));
+app.use(express.static(path.join(__dirname + '/Public')));
 
 app.use((req, res, next) => {
     console.log(req.method);
@@ -36,8 +39,8 @@ app.use((req, res, next) => {
     res.end(`<html><body><h1>This is an express server</h1></body></html>`);
 });
 
-const server = http.createServer(app);
+// const server = http.createServer(app);
 
-server.listen(port, hostName, () => {
-    console.log(`Server is runnind at http://${hostName}:${port}`);
-});
+// server.listen(port, hostName, () => {
+//     console.log(`Server is runnind at http://${hostName}:${port}`);
+// });
