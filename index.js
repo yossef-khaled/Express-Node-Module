@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const createError = require('http-errors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const fileStore = require('session-file-store')(session);
 
 const dishRouter = require('./Routes/DishRouter');
 
@@ -26,13 +28,21 @@ var app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false}));
-app.use(cookieParser('12345-67890-09876-54321'));
+//app.use(cookieParser('12345-67890-09876-54321'));
+
+app.use(session({
+    name: 'sessionID',
+    secret: '12345-67890-09876-54321',
+    saveUninitialized: false,
+    resave: false,
+    store: new fileStore()
+}));
 
 function authorize(req, res, next) {
-    console.log(req.signedCookies);
+    console.log(req.session);
 
     //Which means the first time to authorize himself.
-    if(!req.signedCookies.user) {
+    if(!req.session.user) {
         //authorizationHeader is an encryption of the user name and password 
         //example : 'basic aefdafferfwd622gfad'  
         var authorizationHeader = req.headers.authorization;
@@ -47,7 +57,7 @@ function authorize(req, res, next) {
         var userName = userIdentity[0];
         var password = userIdentity[1];
         if(userName === 'admin' && password === 'Correct Password') {
-            res.cookie('user', 'admin', {signed: true});
+            req.session.user = 'admin';
             next();
         }
         else {
@@ -58,7 +68,7 @@ function authorize(req, res, next) {
         }
     }
     else {
-        if(req.signedCookies.user === 'admin') {
+        if(req.session.user === 'admin') {
             next();
         }
         else {
