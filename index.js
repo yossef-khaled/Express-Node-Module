@@ -9,6 +9,7 @@ const session = require('express-session');
 const fileStore = require('session-file-store')(session);
 
 const dishRouter = require('./Routes/DishRouter');
+const userRouter = require('./Routes/UsersRouter');
 
 const mongoose = require('mongoose');
 
@@ -30,6 +31,8 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false}));
 //app.use(cookieParser('12345-67890-09876-54321'));
 
+app.use('/users', userRouter);
+ 
 app.use(session({
     name: 'sessionID',
     secret: '12345-67890-09876-54321',
@@ -41,41 +44,20 @@ app.use(session({
 function authorize(req, res, next) {
     console.log(req.session);
 
-    //Which means the first time to authorize himself.
     if(!req.session.user) {
-        //authorizationHeader is an encryption of the user name and password 
-        //example : 'basic aefdafferfwd622gfad'  
-        var authorizationHeader = req.headers.authorization;
-        if(!authorizationHeader) {
-            var error = new Error('You are NOT authenticated');
-            error.status = 401;
-            res.setHeader('WWW-Authenticate', 'Basic');
-            return next(error);
-        }
-
-        var userIdentity = new Buffer.from(authorizationHeader.split(' ')[1], 'base64').toString().split(':');
-        var userName = userIdentity[0];
-        var password = userIdentity[1];
-        if(userName === 'admin' && password === 'Correct Password') {
-            req.session.user = 'admin';
-            next();
-        }
-        else {
-            var error = new Error('You are NOT authenticated');
-            error.status = 401;
-            res.setHeader('WWW-Authenticate', 'Basic');
-            return next(error);
-        }
+        var err = new Error('You are not authenticated!');
+        err.status = 403;
+        return next(err);
     }
     else {
-        if(req.session.user === 'admin') {
-            next();
-        }
-        else {
-            var error = new Error('You are NOT authenticated');
-            error.status = 401;
-            return next(error);
-        }
+      if (req.session.user === 'authenticated') {
+        next();
+      }
+      else {
+        var err = new Error('You are NOT authenticated!');
+        err.status = 403;
+        return next(err);
+      }
     }
 }
 
