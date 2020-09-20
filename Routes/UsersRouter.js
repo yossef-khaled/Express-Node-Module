@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-var Users = require('../Models/Users');
+var passport = require('passport');
 
+var Users = require('../Models/Users');
 var userRouter = express.Router();
 userRouter.use(bodyParser.json());
 
@@ -10,27 +11,21 @@ userRouter.get('/', (req, res, next) => {
 });
 
 userRouter.post('/signup', (req, res, next) => {
-    Users.findOne({userName : req.body.userName})
-    .then((user) => {
-        if(user != null) {
-            var error = new Error(`User ${req.body.username} already exists!`);
-            error.status = 403;
-            next(error);
+    Users.register(new Users({userName : req.body.userName}), req.body.password, 
+    (error, user) => {
+        if(error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({error : error});
         }
         else {
-            return Users.create
-            ({
-                userName : req.body.userName,
-                password : req.body.password
+            passport.authenticate('local')(req, res, () => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({success : true, status : 'Registration Successfull'});
             });
         }
-    })
-    .then((user) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({status : 'Registration Successfull', user : user});
-    }, (error) => next(error))
-    .catch((error) => next(error));
+    });
 });
 
 userRouter.post('/login', (req, res, next) => {
