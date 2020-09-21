@@ -10,14 +10,17 @@ const fileStore = require('session-file-store')(session);
 var passport = require('passport');
 var authenticate = require('./Authenticate');
 
+var configure = require('./Config');
+
 const dishRouter = require('./Routes/DishRouter');
 const userRouter = require('./Routes/UsersRouter');
 
 const mongoose = require('mongoose');
 
 const Dishes = require('./Models/Dishes');
+const { config } = require('process');
 
-const url = 'mongodb://localhost:27017/conFusion';
+const url = configure.mongoURL;
 const connect = mongoose.connect(url);
 
 connect.then((db) => {
@@ -46,19 +49,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/users', userRouter);
-
-function authorize(req, res, next) {
-    if(!req.user) {
-        var err = new Error('You are not authenticated!');
-        err.status = 403;
-        return next(err);
-    }
-    else {
-      next();
-    }
-}
-
-app.use(authorize);
 
 //Use HTML files as a static data
 app.use(express.static(path.join(__dirname + '/Public')));

@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
+var authenticate = require('../Authenticate');
+
 const Dishes = require('../Models/Dishes');
 
 const dishRouter = express.Router();
@@ -19,7 +21,7 @@ dishRouter.route('/')
     }, (error) => next(error))
     .catch((error) => next(error));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Dishes.create(req.body)
     .then((dish) => {
         console.log(`Dish created ${dish}`);
@@ -29,11 +31,11 @@ dishRouter.route('/')
     },  (error) => next(error))
     .catch((error) => next(error));
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end(`PUT operation is not supported in this end point '/dishes'`);
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Dishes.remove({})
     .then((responce) => {
         console.log(`All dishes removed`);
@@ -62,11 +64,11 @@ dishRouter.route('/:dishID')
     }, (error) => next(error))
     .catch((error) => next(error));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end(`POST operation is not supported in this end point '/dishes/:${req.params.dishID}'`);
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishID)
     .then((dish) => {
         if(dish != null) {
@@ -91,7 +93,7 @@ dishRouter.route('/:dishID')
     }, (error) => next(error))
     .catch((error) => next(error));
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishID)
     .then((dish) => {
         if(dish != null) {
@@ -129,7 +131,7 @@ dishRouter.route('/:dishID/comments')
     }, (error) => next(error))
     .catch((error) => next(error));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishID)
     .then((dish) => {
         if(dish != null) {
@@ -149,11 +151,11 @@ dishRouter.route('/:dishID/comments')
     }, (error) => next(error))
     .catch((error) => next(error));
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end(`PUT operation is forbidden for the path /dishes/:${req.params.dishID}/comments`);
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishID)
     .then((dish) => {
         if(dish != null) {
@@ -199,11 +201,11 @@ dishRouter.route('/:dishID/comments/:commentID')
     }, (error) => next(error))
     .catch((error) => next(error));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end(`POST operation is not supported in this end point '/dishes/:${req.params.dishID}/comments/:${req.params.commentID}'`);
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishID)
     .then((dish) => {
         if(dish != null && dish.comments.id(req.params.commentID) != null) {
@@ -233,7 +235,7 @@ dishRouter.route('/:dishID/comments/:commentID')
     }, (error) => next(error))
     .catch((error) => next(error));
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishID)
     .then((dish) => {
         if(dish != null && dish.comments.id(req.params.commentID) != null) {
