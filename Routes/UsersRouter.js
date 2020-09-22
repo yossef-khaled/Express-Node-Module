@@ -21,6 +21,8 @@ userRouter.post('/signup', (req, res, next) => {
             res.json({error : error});
         }
         else {
+            user.firstname = req.body.firstname;
+            user.lastname = req.body.lastname;
             passport.authenticate('local')(req, res, () => {
                 var token = authenticate.getToken({_id : req.user._id});
                 res.statusCode = 200;
