@@ -31,6 +31,17 @@ const hostName = 'Localhost';
 const port = 3000;
 
 var app = express();
+
+app.all('*', (req, res, next) => {
+    if(req.secure) {
+        return next();
+    }
+    else {
+        //Redirect any http request into the https port
+        res.redirect(307, `https://${req.hostname}:${app.get('securePort')}${req.url}`);
+    }
+})
+
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false}));
